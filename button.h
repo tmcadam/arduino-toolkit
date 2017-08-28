@@ -1,29 +1,29 @@
 // button.h
 #ifndef Button_H
 #define Button_H
-#include <Arduino.h> 
+#include <Arduino.h>
 
 const int INTERNAL_RESISTOR = INPUT_PULLUP;
 const int EXTERNAL_RESISTOR = INPUT;
 
 class Button {
   private:
-    
+
     int pinNumber;
     int state = 0;
-    long longHoldThreshold;
-    long longHoldStartTime;
+    unsigned long longHoldThreshold;
+    unsigned long longHoldStartTime;
     int previousPosition = HIGH;
     int currentPosition = HIGH;
-    long lastCheck;
-    int checkDelay;
+    unsigned long lastCheck;
+    unsigned int checkDelay;
     void getPosition();
-    
+
   public:
-    void beginButton (int, long, int, int);
+    void beginButton (int, unsigned long, unsigned int, int);
     void setState(int);
     int checkButton();
-    
+
 };
 
 struct PairResult {
