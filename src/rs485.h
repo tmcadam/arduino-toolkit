@@ -1,7 +1,7 @@
 #ifndef Rs485_H
 #define Rs485_H
 #include <Arduino.h>
-#include <lib/Auto485/Auto485.h>
+#include <Auto485/Auto485.h>
 #include <strings.h>
 
 typedef struct {

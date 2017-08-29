@@ -3,8 +3,13 @@
 #define Button_H
 #include <Arduino.h>
 
-const int INTERNAL_RESISTOR = INPUT_PULLUP;
-const int EXTERNAL_RESISTOR = INPUT;
+#ifdef __STM32F1__
+  const WiringPinMode INTERNAL_RESISTOR = INPUT_PULLUP;
+  const WiringPinMode EXTERNAL_RESISTOR = INPUT;
+#else
+  const int INTERNAL_RESISTOR = INPUT_PULLUP;
+  const int EXTERNAL_RESISTOR = INPUT;
+#endif
 
 class Button {
   private:
@@ -20,7 +25,11 @@ class Button {
     void getPosition();
 
   public:
-    void beginButton (int, unsigned long, unsigned int, int);
+    #ifdef __STM32F1__
+      void beginButton (int, unsigned long, unsigned int, WiringPinMode);
+    #else
+      void beginButton (int, unsigned long, unsigned int, int);
+    #endif
     void setState(int);
     int checkButton();
 

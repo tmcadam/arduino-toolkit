@@ -20,7 +20,11 @@ PairResult ButtonPair::checkPair(){
 }
 
 
-void Button::beginButton (int pinNumber, unsigned long longHoldThreshold, unsigned int checkDelay, int resistorType) {
+#if defined(__STM32F1__)
+  void Button::beginButton (int pinNumber, unsigned long longHoldThreshold, unsigned int checkDelay, WiringPinMode resistorType) {
+#else
+  void Button::beginButton (int pinNumber, unsigned long longHoldThreshold, unsigned int checkDelay, int resistorType) {
+#endif
   this->pinNumber = pinNumber;
   this->longHoldThreshold = longHoldThreshold;
   this->lastCheck = millis();

@@ -1,6 +1,7 @@
 #include "rs485.h"
 
 #define DE_PIN 3
+// #define SERIAL_BUS //useful for debugging RS485 message processing
 
 #ifdef SERIAL_BUS
   #define bus Serial
