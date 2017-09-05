@@ -11,36 +11,52 @@ const byte DELIM = '\0';
 const long BAUDRATE = 57600;
 
 union FloatByte {
-  float fVal;
-  byte bVal[sizeof(float)];
+    float fVal;
+    byte bVal[sizeof(float)];
 };
 
 union LongByte {
     unsigned long int lVal;
-    byte bVal[2];
+    byte bVal[sizeof(long)];
+};
+
+union IntByte {
+    unsigned int iVal;
+    byte bVal[sizeof(int)];
 };
 
 typedef struct {
-  int msgType;
-  int dataType;
-  int dataLen = sizeof(float);
-  FloatByte msgData;
-} FloatMessage;
+  IntByte direction;
+  FloatByte speed;
+} WindData;
+
+typedef struct {
+  byte pktType;
+  byte dataType;
+  byte dataLen;
+  byte payload[32];
+} Packet;
 
 //Message outMessage;
-extern FloatMessage inMessage;
+extern Packet inPacket;
+extern Packet outPacket;
 //Global signals
 extern boolean newMessageSignal;
 extern boolean badMessageSignal;
 
-enum { DATA, COMMAND, CONFIRMATION};
-enum { ALL, HUMIDITY, PRESSURE, TEMPERATURE, WIND_SPEED, WIND_DIRECTION };
+enum pktType { DATA, COMMAND, CONFIRMATION};
+enum dataType { ALL, HUMIDITY, PRESSURE, TEMPERATURE, WIND_SPEED, WIND_DIRECTION, WIND_ALL };
 
-void receivePacket();
-void parseMessage();
-void buildMessage(int, int, float);
-void sendPacket();
 void busStart(long=BAUDRATE);
 void sendDebug(char*);
+
+void receivePacket();
+void parsePacket();
+
+void buildPacket(byte, byte, byte, byte*);
+void sendPacket();
+
+void bldWindPacket(WindData&);
+void prsWindPacket(WindData&);
 
 #endif
