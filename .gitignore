@@ -1,2 +1,4 @@
-src/Auto485/
+src/Auto485
+src/PacketSerial
+src/FastCRC
 *.gch
