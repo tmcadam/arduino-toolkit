@@ -27,7 +27,7 @@ Packet outPacket;
 //Global signals
 boolean newMessageSignal = false;
 boolean badMessageSignal = false;
-boolean newOutMessageSignal = false;
+boolean newOutPacketSignal = false;
 //Local signals
 boolean recvInProgress = false;
 boolean sendInProgress = false;
@@ -74,32 +74,38 @@ void prsWindPacket(WindData &wd) {
     getVal(wd.direction.bVal, inPacket.payload, sizeof(wd.speed.bVal), sizeof(wd.direction.bVal));
 }
 
+unsigned long lastByte = 0;
 IntByte ib;
-void sendPacket() {
-    // Make sure outBuf is empty
-    memset(outBuf, 0, sizeof(outBuf));
-    // Create an out buffer of the correct length
-    byte packetSize = outPacket.dataLen + 5;    //add 5 bytes for header and CRC
-    outBuf[0] = (byte)outPacket.pktType;        //packet type
-    outBuf[1] = (byte)outPacket.dataType;       //data type
-    outBuf[2] = (byte)outPacket.dataLen;        //data length
-    for (byte i = 0; i < outPacket.dataLen; i++) {
-        outBuf[i + 3] = outPacket.payload[i];
-    }
-    ib.iVal = CRC16.ccitt(outBuf, packetSize - 2);
-    outBuf[packetSize - 2] = ib.bVal[0];        //CRC - 2nd from last byte
-    outBuf[packetSize - 1] = ib.bVal[1];        //CRC - last byte
+void handleSendPacket() {
+    if (!recvInProgress && !sendInProgress && millis() - lastByte > SEND_RECEIVE_GAP) {
+        sendInProgress = true;
+        newOutPacketSignal = false;
+        // Make sure outBuf is empty
+        memset(outBuf, 0, sizeof(outBuf));
+        // Create an out buffer of the correct length
+        byte packetSize = outPacket.dataLen + 5;    //add 5 bytes for header and CRC
+        outBuf[0] = (byte)outPacket.pktType;        //packet type
+        outBuf[1] = (byte)outPacket.dataType;       //data type
+        outBuf[2] = (byte)outPacket.dataLen;        //data length
+        for (byte i = 0; i < outPacket.dataLen; i++) {
+            outBuf[i + 3] = outPacket.payload[i];
+        }
+        ib.iVal = CRC16.ccitt(outBuf, packetSize - 2);
+        outBuf[packetSize - 2] = ib.bVal[0];        //CRC - 2nd from last byte
+        outBuf[packetSize - 1] = ib.bVal[1];        //CRC - last byte
 
-    memset(outCobsBuf, 0, sizeof(outCobsBuf));
-    COBS::encode(outBuf, packetSize, outCobsBuf);
-    packetSize+=3; // 1 extra COBS byte and 2 extra delimiter bytes
-    outBuf[0] = DELIM;
-    for (int i = 0; i < packetSize - 2; i++) {
-        outBuf[i + 1] = outCobsBuf[i];
+        memset(outCobsBuf, 0, sizeof(outCobsBuf));
+        COBS::encode(outBuf, packetSize, outCobsBuf);
+        packetSize+=3; // 1 extra COBS byte and 2 extra delimiter bytes
+        outBuf[0] = DELIM;
+        for (int i = 0; i < packetSize - 2; i++) {
+            outBuf[i + 1] = outCobsBuf[i];
+        }
+        outBuf[packetSize - 1] = DELIM;
+        bus.write(outBuf, packetSize);
+        bus.flush();
+        sendInProgress = false;
     }
-    outBuf[packetSize - 1] = DELIM;
-    bus.write(outBuf, packetSize);
-    bus.flush();
 }
 
 bool parsePacket(byte size) {
@@ -124,9 +130,10 @@ bool parsePacket(byte size) {
 
 int idx; //counter for message receive
 byte rb; //byte for message receive
-void receivePacket() {
+void receivePackets() {
     while (bus.available() > 0 && !newMessageSignal) {
         rb = bus.read();
+        lastByte = millis();
         if (recvInProgress == true) {
             if (rb != DELIM) {
               inCobsBuf[idx] = rb;
@@ -149,4 +156,13 @@ void receivePacket() {
             idx = 0;
         }
     }
+}
+
+void sendPacket() {
+    newOutPacketSignal = true;
+}
+
+void RS485Watcher() {
+    receivePackets();
+    handleSendPacket();
 }

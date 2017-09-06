@@ -9,6 +9,8 @@
 //A reserved vyte that delimits messages
 const byte DELIM = '\0';
 const long BAUDRATE = 57600;
+const unsigned long SEND_RECEIVE_GAP = 2;
+
 
 union FloatByte {
     float fVal;
@@ -50,7 +52,7 @@ enum dataType { ALL, HUMIDITY, PRESSURE, TEMPERATURE, WIND_SPEED, WIND_DIRECTION
 void busStart(long=BAUDRATE);
 void sendDebug(char*);
 
-void receivePacket();
+void RS485Watcher();
 void parsePacket();
 
 void buildPacket(byte, byte, byte, byte*);
