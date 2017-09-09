@@ -46,8 +46,11 @@ extern Packet outPacket;
 extern boolean newMessageSignal;
 extern boolean badMessageSignal;
 
-enum pktType { DATA, COMMAND, CONFIRMATION};
+enum pktType { DATA, COMMAND, ACKNOWLEDGEMENT };
 enum dataType { ALL, HUMIDITY, PRESSURE, TEMPERATURE, WIND_SPEED, WIND_DIRECTION, WIND_ALL };
+
+enum slaveState { AWAITING_COMMAND, COMMAND_RECEIVED, DATA_SENT, ACKNOWLEDGEMENT_RECEIVED };
+enum masterState { COMMAND_SENT, DATA_RECEIVED, ACKNOWLEDGEMENT_SENT };
 
 void busStart(long=BAUDRATE);
 void sendDebug(char*);
@@ -59,6 +62,8 @@ void buildPacket(byte, byte, byte, byte*);
 void sendPacket();
 
 void bldWindPacket(WindData&);
+void sndSimplePacket(byte, byte);
 void prsWindPacket(WindData&);
+void sndConfirmationPacket(byte);
 
 #endif

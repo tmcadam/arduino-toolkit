@@ -7,7 +7,7 @@
 #else
   Auto485 bus(DE_PIN, DE_PIN, Serial);
 #endif
-//#define bus Serial //useful for debugging
+//define bus Serial //useful for debugging
 
 // A CRC class
 FastCRC16 CRC16;
@@ -74,37 +74,55 @@ void prsWindPacket(WindData &wd) {
     getVal(wd.direction.bVal, inPacket.payload, sizeof(wd.speed.bVal), sizeof(wd.direction.bVal));
 }
 
+void sndSimplePacket(byte pktType, byte dataType) {
+    outPacket.pktType = pktType;
+    outPacket.dataType = dataType;
+    outPacket.dataLen = 0;
+    sendPacket();
+}
+
+void sndConfirmationPacket(byte dataType) {
+    outPacket.pktType = pktType::ACKNOWLEDGEMENT;
+    outPacket.dataType = dataType;
+    outPacket.dataLen = 0;
+    sendPacket();
+}
+
 unsigned long lastByte = 0;
 IntByte ib;
-void handleSendPacket() {
-    if (!recvInProgress && !sendInProgress && millis() - lastByte > SEND_RECEIVE_GAP) {
-        sendInProgress = true;
-        newOutPacketSignal = false;
-        // Make sure outBuf is empty
-        memset(outBuf, 0, sizeof(outBuf));
-        // Create an out buffer of the correct length
-        byte packetSize = outPacket.dataLen + 5;    //add 5 bytes for header and CRC
-        outBuf[0] = (byte)outPacket.pktType;        //packet type
-        outBuf[1] = (byte)outPacket.dataType;       //data type
-        outBuf[2] = (byte)outPacket.dataLen;        //data length
-        for (byte i = 0; i < outPacket.dataLen; i++) {
-            outBuf[i + 3] = outPacket.payload[i];
-        }
-        ib.iVal = CRC16.ccitt(outBuf, packetSize - 2);
-        outBuf[packetSize - 2] = ib.bVal[0];        //CRC - 2nd from last byte
-        outBuf[packetSize - 1] = ib.bVal[1];        //CRC - last byte
 
-        memset(outCobsBuf, 0, sizeof(outCobsBuf));
-        COBS::encode(outBuf, packetSize, outCobsBuf);
-        packetSize+=3; // 1 extra COBS byte and 2 extra delimiter bytes
-        outBuf[0] = DELIM;
-        for (int i = 0; i < packetSize - 2; i++) {
-            outBuf[i + 1] = outCobsBuf[i];
-        }
-        outBuf[packetSize - 1] = DELIM;
-        bus.write(outBuf, packetSize);
-        bus.flush();
-        sendInProgress = false;
+void handleSendPacket() {
+    if (newOutPacketSignal &&
+        !recvInProgress &&
+        !sendInProgress &&
+        (millis() - lastByte) > SEND_RECEIVE_GAP) {
+            sendInProgress = true;
+            newOutPacketSignal = false;
+            // Make sure outBuf is empty
+            memset(outBuf, 0, sizeof(outBuf));
+            // Create an out buffer of the correct length
+            byte packetSize = outPacket.dataLen + 5;    //add 5 bytes for header and CRC
+            outBuf[0] = (byte)outPacket.pktType;        //packet type
+            outBuf[1] = (byte)outPacket.dataType;       //data type
+            outBuf[2] = (byte)outPacket.dataLen;        //data length
+            for (byte i = 0; i < outPacket.dataLen; i++) {
+                outBuf[i + 3] = outPacket.payload[i];
+            }
+            ib.iVal = CRC16.ccitt(outBuf, packetSize - 2);
+            outBuf[packetSize - 2] = ib.bVal[0];        //CRC - 2nd from last byte
+            outBuf[packetSize - 1] = ib.bVal[1];        //CRC - last byte
+
+            memset(outCobsBuf, 0, sizeof(outCobsBuf));
+            COBS::encode(outBuf, packetSize, outCobsBuf);
+            packetSize+=3; // 1 extra COBS byte and 2 extra delimiter bytes
+            outBuf[0] = DELIM;
+            for (int i = 0; i < packetSize - 2; i++) {
+                outBuf[i + 1] = outCobsBuf[i];
+            }
+            outBuf[packetSize - 1] = DELIM;
+            bus.write(outBuf, packetSize);
+            bus.flush();
+            sendInProgress = false;
     }
 }
 
@@ -146,7 +164,6 @@ void receivePackets() {
                 } else {
                   badMessageSignal = true; //once this has been handled set to false
                 }
-                sei();
             }
         }
         else if (rb == DELIM) { //a new packet
