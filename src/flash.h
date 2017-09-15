@@ -17,6 +17,7 @@ class Flash {
     void ndFlash(unsigned long, int);
     void dFlash(unsigned long, int);
     void ndWatcher();
+    void update() { ndWatcher(); };
 };
 
 #endif
