@@ -25,9 +25,13 @@ void Timer::start(){
 }
 
 void Timer::update() {
-    unsigned long currMillis = millis() + this->offset;
-    if ((currMillis - this->lastAction) >= this->period && this->enabled) {
-        this->action();
-        this->lastAction = currMillis;
+    unsigned long currMillis = millis() + offset;
+    if ((currMillis - lastAction) >= period && enabled && currMillis > delay) {
+        action();
+        lastAction = currMillis;
     }
+}
+
+void Timer::setDelay(unsigned long _delay) {
+    delay = _delay;
 }

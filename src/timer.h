@@ -9,6 +9,7 @@ class Timer {
     unsigned long period;
     unsigned long lastAction;
     unsigned long offset;
+    unsigned long delay;
     bool enabled;
     GeneralCallbackFunction action;
 
@@ -19,6 +20,7 @@ class Timer {
     void stop();
     void start();
     void update();
+    void setDelay(unsigned long);
 };
 
 #endif
