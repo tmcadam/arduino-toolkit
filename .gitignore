@@ -1,4 +1,10 @@
 src/Auto485
 src/PacketSerial
 src/FastCRC
+old/
+
 *.gch
+.pioenvs
+.piolibdeps
+.clang_complete
+.gcc-flags.json
