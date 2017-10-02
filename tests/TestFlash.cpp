@@ -1,6 +1,3 @@
-#include <iostream>
-#include <string>
-#include <list>
 #include <cppunit/TestCase.h>
 #include <cppunit/TestFixture.h>
 #include <cppunit/ui/text/TextTestRunner.h>
@@ -11,7 +8,6 @@
 #include <cppunit/TestRunner.h>
 #include <cppunit/BriefTestProgressListener.h>
 #include <cppunit/CompilerOutputter.h>
-#include <netinet/in.h>
 
 #include "../src/flash.h"
 #include <Arduino.h>
