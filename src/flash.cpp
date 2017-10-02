@@ -5,6 +5,21 @@ void Flash::setPin(int _pinNumber){
   pinMode(this->pinNumber, OUTPUT);
 }
 
+void Flash::dFlash(unsigned long flashPeriod) {
+    digitalWrite(pinNumber, HIGH);
+    delay(flashPeriod);
+    digitalWrite(pinNumber, LOW);
+    delay(flashPeriod);
+}
+
+void Flash::dFlashes(unsigned long flashPeriod, int flashCount){
+    int c = 0;
+    while( c < flashCount ) {
+        dFlash(flashPeriod);
+        c++;
+    }
+}
+
 void Flash::ndFlash(unsigned long _flashPeriod, int _numFlashes){
   if (this->flashInProgress == 0) {
       this->flashInProgress = 1;
@@ -32,16 +47,5 @@ void Flash::ndWatcher() {
       }
       this->flashInProgress = 0;
     }
-  }
-}
-
-void Flash::dFlash(unsigned long flashPeriod, int flashCount){
-  int c = 0;
-  while( c < flashCount ) {
-    digitalWrite(this->pinNumber, HIGH);
-    delay(flashPeriod);
-    digitalWrite(this->pinNumber, LOW);
-    delay(flashPeriod);
-    c++;
   }
 }

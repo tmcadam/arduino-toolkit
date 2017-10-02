@@ -14,8 +14,10 @@ class Flash {
 
   public:
     void setPin(int);
+    int getPin() { return pinNumber; };
     void ndFlash(unsigned long, int);
-    void dFlash(unsigned long, int);
+    void dFlash(unsigned long);
+    void dFlashes(unsigned long, int);
     void ndWatcher();
     void update() { ndWatcher(); };
 };
