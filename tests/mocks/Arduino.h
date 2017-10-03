@@ -25,10 +25,21 @@
 //#define lowByte(w) ((unsigned char) ((w) & 0xff))
 //#define highByte(w) ((unsigned char) ((w) >> 8))
 
-//typedef unsigned char byte;
 //typedef unsigned short int word;
-
+#include <stdio.h> // gives size_t
+#include <string.h> // gives memset
 #include <vector>
+
+typedef unsigned char byte;
+typedef unsigned char uint8_t;
+typedef unsigned short int uint16_t;
+typedef unsigned int uint32_t;
+
+//overrides PROGMEM to just use RAM
+#define PROGMEM
+inline uint8_t pgm_read_byte(const uint8_t * _address_short) {return *_address_short;};
+inline uint16_t pgm_read_word(const uint16_t * _address_short) {return *_address_short;};
+inline uint32_t pgm_read_dword(const uint32_t * _address_short) {return *_address_short;};
 
 #define HIGH 0x1
 #define LOW  0x0
