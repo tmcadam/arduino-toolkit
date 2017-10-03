@@ -1,18 +1,24 @@
+#include <FastCRC/FastCRC.h>
+#include <PacketSerial/src/Encoding/COBS.h>
 #include "SerialPacket.h"
 FastCRC16 CRC16;
 
-// Creates the final outbuffer of packet, writes to rs485 buffer, ready to send
+unsigned int Packet::bytesToCrc(byte* Buffer, byte BufferSize) {
+    return CRC16.ccitt(Buffer, BufferSize);
+}
+
+// Creates the final outbuffer of packet, ready to send.
 void Packet::setOutBuffer(byte* Buffer, byte& BufferSize) {
     memset(Buffer, 0, PACKET_SIZE + 8); // Make sure outBuf is empty
     // Create an out buffer of the correct length
-    BufferSize = dataLen + 5;    //add 5 bytes for header and CRC
+    BufferSize = dataLen + 5;           //add 5 bytes for header and CRC
     Buffer[0] = (byte)pktType;        //packet type
     Buffer[1] = (byte)dataType;       //data type
     Buffer[2] = (byte)dataLen;        //data length
     for (byte i = 0; i < dataLen; i++) {
         Buffer[i + 3] = payload[i];
     }
-    ib.iVal = CRC16.ccitt(Buffer, BufferSize - 2);
+    ib.iVal = bytesToCrc(Buffer, BufferSize - 2);
     Buffer[BufferSize - 2] = ib.bVal[0];        //CRC - 2nd from last byte
     Buffer[BufferSize - 1] = ib.bVal[1];        //CRC - last byte
     memset(tmpBuffer, 0, sizeof(tmpBuffer));

@@ -1,7 +1,6 @@
 #ifndef SER_PAC_H
 #define SER_PAC_H
-#include "../FastCRC/FastCRC.h"
-#include "../PacketSerial/src/Encoding/COBS.h"
+#include <Arduino.h>
 
 const byte PACKET_SIZE = 32;
 const byte DELIM = '\0';
@@ -27,6 +26,7 @@ class Packet {
         bool goodPacket;
         unsigned long crc;
         byte tmpBuffer[PACKET_SIZE + 8];
+        unsigned int bytesToCrc(byte*, byte);
 
     public:
         // ----- Packet Contents ------ //

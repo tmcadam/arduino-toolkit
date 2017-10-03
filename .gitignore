@@ -1,6 +1,4 @@
-src/Auto485
-src/PacketSerial
-src/FastCRC
+lib/
 old/
 
 *.gch
