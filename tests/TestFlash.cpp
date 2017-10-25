@@ -9,7 +9,11 @@
 #include <cppunit/BriefTestProgressListener.h>
 #include <cppunit/CompilerOutputter.h>
 
+#define protected public
+#define private   public
 #include "../src/flash.h"
+#undef protected
+#undef private
 #include <Arduino.h>
 
 using namespace std;
@@ -50,7 +54,7 @@ void TestFlash::testHelloWorld(void) {
 
 void TestFlash::testSetPin(void) {
     mTestObj->setPin(10);
-    CPPUNIT_ASSERT_EQUAL(mTestObj->getPin(), 10);
+    CPPUNIT_ASSERT_EQUAL(mTestObj->pinNumber , 10);
     CPPUNIT_ASSERT(digitalRead(10) == LOW );
 }
 
