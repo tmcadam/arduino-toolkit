@@ -22,27 +22,43 @@ union IntByte {
 
 class Packet {
     private:
+        // properties
         IntByte ib;
         bool goodPacket;
         unsigned long crc;
         byte tmpBuffer[PACKET_SIZE + 8];
+        // methods
         unsigned int bytesToCrc(byte*, byte);
+        void clearArray(byte*, byte);
+        void addHeaderBytes(byte*, byte&);
+        void addPayloadBytes(byte*, byte&);
+        void addCrcBytes(byte*, byte&);
+        void addCobsConversion(byte*, byte&);
+        void addDelimiterBytes(byte*, byte&);
+        void removeCobsConversion(byte*, byte&, byte*);
+        bool crcMatch(byte&);
+        void parseHeader(void);
+        void parsePayload(void);
 
     public:
         // ----- Packet Contents ------ //
         byte pktType;
         byte dataType;
         byte dataLen;
+
         byte payload[PACKET_SIZE];
         //void build(byte, byte, byte, byte*);
         void set(byte, byte, byte);
         void set(byte, byte, byte, byte*);
+
         void setOutBuffer(byte*, byte&);
         void parse(byte*, byte&);
+
         // some getters
         byte getPktType() { return pktType; }
         byte getDataType() { return dataType; }
         bool getGoodPacket() { return goodPacket; }
+
         void getPayload(byte*);
         // Helpers for packet payload building
         void getPayloadVal(byte*, byte, byte);

@@ -3,32 +3,45 @@
 #include "SerialPacket.h"
 FastCRC16 CRC16;
 
-unsigned int Packet::bytesToCrc(byte* Buffer, byte BufferSize) {
-    return CRC16.ccitt(Buffer, BufferSize);
+void Packet::removeCobsConversion(byte* bufferArray, byte& bufferSize, byte* tmpBuffer) {
+    COBS::decode(bufferArray, bufferSize, tmpBuffer);
+    bufferSize -= 1;
 }
 
-// Creates the final outbuffer of packet, ready to send.
-void Packet::setOutBuffer(byte* Buffer, byte& BufferSize) {
-    memset(Buffer, 0, PACKET_SIZE + 8); // Make sure outBuf is empty
-    // Create an out buffer of the correct length
-    BufferSize = dataLen + 5;           //add 5 bytes for header and CRC
-    Buffer[0] = (byte)pktType;        //packet type
-    Buffer[1] = (byte)dataType;       //data type
-    Buffer[2] = (byte)dataLen;        //data length
-    for (byte i = 0; i < dataLen; i++) {
-        Buffer[i + 3] = payload[i];
+bool Packet::crcMatch(byte &bufferSize) {
+    ib.bVal[0] = tmpBuffer[bufferSize - 2];
+    ib.bVal[1] = tmpBuffer[bufferSize - 1];
+    bufferSize -= 2;
+    crc = bytesToCrc(tmpBuffer, bufferSize);
+    return (crc == ib.iVal);
+}
+
+void Packet::parseHeader() {
+    pktType = (int)tmpBuffer[0];
+    dataType = (int)tmpBuffer[1];
+    dataLen = (int)tmpBuffer[2];
+}
+
+void Packet::parsePayload() {
+    memcpy(payload, tmpBuffer + 3, dataLen );
+}
+
+void Packet::parse(byte* bufferArray, byte& bufferSize) {
+    goodPacket = false;
+    clearArray(tmpBuffer, sizeof(tmpBuffer));
+    clearArray(payload, sizeof(payload));
+    removeCobsConversion(bufferArray, bufferSize, tmpBuffer);
+    if ( crcMatch(bufferSize) && bufferSize >= 3 ) {
+        parseHeader();
+        if ( bufferSize == (dataLen + 3) ) {
+            parsePayload();
+            goodPacket = true;
+        }
     }
-    ib.iVal = bytesToCrc(Buffer, BufferSize - 2);
-    Buffer[BufferSize - 2] = ib.bVal[0];        //CRC - 2nd from last byte
-    Buffer[BufferSize - 1] = ib.bVal[1];        //CRC - last byte
-    memset(tmpBuffer, 0, sizeof(tmpBuffer));
-    COBS::encode(Buffer, BufferSize, tmpBuffer);
-    BufferSize+=3; // 1 extra COBS byte and 2 extra delimiter bytes
-    Buffer[0] = DELIM;
-    for (int i = 0; i < BufferSize - 2; i++) {
-        Buffer[i + 1] = tmpBuffer[i];
-    }
-    Buffer[BufferSize - 1] = DELIM;
+}
+
+void Packet::getPayload(byte* payloadArray) {
+    memcpy(payloadArray, payload, dataLen);
 }
 
 void Packet::set(byte _pktType, byte _dataType, byte _dataLen) {
@@ -40,35 +53,63 @@ void Packet::set(byte _pktType, byte _dataType, byte _dataLen) {
 
 void Packet::set(byte _pktType, byte _dataType, byte _dataLen, byte* _payload) {
     set(_pktType, _dataType, _dataLen);
-    for (int i = 0; i < _dataLen; i++) {
-        payload[i] = _payload[i];
-    }
+    memcpy(payload, _payload, _dataLen);
 }
 
-void Packet::getPayload(byte * _Buffer) {
-    for (int i = 0; i < dataLen; i++) {
-        _Buffer[i] = payload[i];
-    }
+void Packet::clearArray(byte* arrayToClear, byte sizeofArray) {
+    memset(arrayToClear, 0, sizeofArray);
 }
 
-void Packet::parse(byte* _Buffer, byte& _BufferSize) {
-    goodPacket = false;                                     //set goodPacket false to start with
-    memset(tmpBuffer, 0, sizeof(tmpBuffer));                //clean tmpBuffer
-    memset(payload, 0, sizeof(payload));                    //clean payload
-    COBS::decode(_Buffer, _BufferSize, tmpBuffer);          //un-byte stuff the data to tmpBuffer
-    ib.bVal[0] = tmpBuffer[_BufferSize - 3];                //parse the 1st CRC byte into a union
-    ib.bVal[1] = tmpBuffer[_BufferSize - 2];                //parse the 2nd CRC byte into a union
-    crc = CRC16.ccitt(tmpBuffer, _BufferSize - 3);          //calculate a 2 byte CRC
-    if (crc == ib.iVal ) {                                  //check in CRCs match
-      pktType = (int)tmpBuffer[0];                          //parse packet type
-      dataType = (int)tmpBuffer[1];                         //parse data type
-      dataLen = (int)tmpBuffer[2];                          //parse data len
-      for (byte i = 0; i < dataLen; i++) {
-         payload[i] = tmpBuffer[i + 3];                     //read the payload from packet
-      }
-      goodPacket = true;                                    //set goodPacket true if CRC vals match
-    }
+void Packet::addHeaderBytes(byte* packetArray, byte& arraySize) {
+    packetArray[0] = (byte)pktType;
+    packetArray[1] = (byte)dataType;
+    packetArray[2] = (byte)dataLen;
+    arraySize = 3;
 }
+
+void Packet::addPayloadBytes(byte* packetArray, byte& arraySize){
+    for (byte i = 0; i < dataLen; i++) {
+        packetArray[i + arraySize] = payload[i];
+    }
+    arraySize += dataLen;
+}
+
+unsigned int Packet::bytesToCrc(byte* packetArray, byte arraySize) {
+    return CRC16.ccitt(packetArray, arraySize);
+}
+
+void Packet::addCrcBytes(byte* packetArray, byte& arraySize) {
+    ib.iVal = bytesToCrc(packetArray, arraySize);
+    packetArray[arraySize] = ib.bVal[0];
+    packetArray[arraySize + 1] = ib.bVal[1];
+    arraySize += 2;
+}
+
+void Packet::addCobsConversion(byte* packetArray, byte& arraySize) {
+    clearArray(tmpBuffer, sizeof(tmpBuffer));
+    COBS::encode(packetArray, arraySize, tmpBuffer);
+    arraySize += 1;
+    memcpy(packetArray, tmpBuffer, arraySize);
+}
+
+void Packet::addDelimiterBytes(byte* packetArray, byte& arraySize) {
+    memmove(packetArray + 1, packetArray, arraySize);
+    packetArray[0] = DELIM;
+    packetArray[arraySize + 1] = DELIM;
+    arraySize += 2;
+}
+
+void Packet::setOutBuffer(byte* packetArray, byte& arraySize) {
+    clearArray(packetArray, PACKET_SIZE + 8);
+    addHeaderBytes(packetArray, arraySize);
+    addPayloadBytes(packetArray, arraySize);
+    addCrcBytes(packetArray, arraySize);
+    addCobsConversion(packetArray, arraySize);
+    addDelimiterBytes(packetArray, arraySize);
+}
+
+
+
 
 // static method to help with building payload byte array (could these by non-static??)
 void Packet::putVal(byte* _payload, byte* _bVal, byte _startIdx, byte _size) {
