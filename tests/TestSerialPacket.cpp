@@ -7,7 +7,6 @@
 #undef protected
 #undef private
 
-#include <Arduino.h>
 using namespace std;
 
 TEST_CASE ( "Test getPayloadVal returns correct value from payload" ) {
