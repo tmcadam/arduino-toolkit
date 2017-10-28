@@ -1,91 +1,60 @@
-#include <cppunit/TestCase.h>
-#include <cppunit/TestFixture.h>
-#include <cppunit/ui/text/TextTestRunner.h>
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/extensions/TestFactoryRegistry.h>
-#include <cppunit/TestResult.h>
-#include <cppunit/TestResultCollector.h>
-#include <cppunit/TestRunner.h>
-#include <cppunit/BriefTestProgressListener.h>
-#include <cppunit/CompilerOutputter.h>
+#define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
+#include "catch.hpp"
 
 #define protected public
 #define private   public
 #include "../src/flash.h"
 #undef protected
 #undef private
+
 #include <Arduino.h>
 
 using namespace std;
 
-//-----------------------------------------------------------------------------
+uint16_t flashDuration(void);
+int countFlashes(void);
 
-class TestFlash : public CppUnit::TestFixture
-{
-    CPPUNIT_TEST_SUITE(TestFlash);
-    CPPUNIT_TEST(testHelloWorld);
-    CPPUNIT_TEST(testSetPin);
-    CPPUNIT_TEST(testDFlash);
-    CPPUNIT_TEST(testDFlashes);
-    CPPUNIT_TEST_SUITE_END();
+//--------------------------Test Cases----------------------------------------//
 
-public:
-    void setUp(void);
-    void tearDown(void);
-
-protected:
-    void testHelloWorld(void);
-    void testSetPin(void);
-    void testDFlash(void);
-    void testDFlashes(void);
-
-private:
-    int countFlashes(void);
-    unsigned long flashDuration(void);
-    Flash *mTestObj;
-};
-
-//-----------------------------------------------------------------------------
-
-void TestFlash::testHelloWorld(void) {
-    CPPUNIT_ASSERT_EQUAL("Helloworld", "Helloworld");
-    CPPUNIT_ASSERT("Hello1world" != "Helloworld");
+TEST_CASE ( "testSetPin" ) {
+    Flash mTestObj;
+    mTestObj.setPin(10);
+    CHECK(mTestObj.pinNumber  == 10);
+    CHECK(digitalRead(10) == LOW );
 }
 
-void TestFlash::testSetPin(void) {
-    mTestObj->setPin(10);
-    CPPUNIT_ASSERT_EQUAL(mTestObj->pinNumber , 10);
-    CPPUNIT_ASSERT(digitalRead(10) == LOW );
-}
-
-void TestFlash::testDFlash(void) {
+TEST_CASE ( "testDFlash" ) {
+    Flash mTestObj;
     unsigned long period = 20;
     unsigned long expectedDelay = period * 2;
     unsigned long startMillis = millis();
     DigitalWriteLogs.clear();
-    mTestObj->setPin(10);
-    mTestObj->dFlash(period);
-    CPPUNIT_ASSERT( expectedDelay == millis() - startMillis );
-    CPPUNIT_ASSERT( countFlashes() == 1 );
-    CPPUNIT_ASSERT( flashDuration() == period );
-    CPPUNIT_ASSERT( digitalRead(10) == LOW );
+    mTestObj.setPin(10);
+    mTestObj.dFlash(period);
+    CHECK( expectedDelay == millis() - startMillis );
+    CHECK( countFlashes() == 1 );
+    CHECK( flashDuration() == period );
+    CHECK( digitalRead(10) == LOW );
 }
 
-void TestFlash::testDFlashes(void) {
+TEST_CASE ( "testDFlashes" ) {
+    Flash mTestObj;
     int flashes = 3;
     unsigned long period = 10;
     unsigned long expectedDelay = ( flashes * period ) * 2;
     unsigned long startMillis = millis();
     DigitalWriteLogs.clear();
-    mTestObj->setPin(10);
-    mTestObj->dFlashes(period, flashes);
-    CPPUNIT_ASSERT( expectedDelay == millis() - startMillis );
-    CPPUNIT_ASSERT( countFlashes() == flashes );
-    CPPUNIT_ASSERT( flashDuration() == period  );
-    CPPUNIT_ASSERT( digitalRead(10) == LOW );
+    mTestObj.setPin(10);
+    mTestObj.dFlashes(period, flashes);
+    CHECK( expectedDelay == millis() - startMillis );
+    CHECK( countFlashes() == flashes );
+    CHECK( flashDuration() == period  );
+    CHECK( digitalRead(10) == LOW );
 }
 
-int TestFlash::countFlashes() {
+//-----------------------------Helper functions-------------------------------//
+
+int countFlashes() {
     int c = 0;
     for(int i = 1; i != DigitalWriteLogs.size(); i++) {
         if ( DigitalWriteLogs[i].pinValue == HIGH && DigitalWriteLogs[i-1].pinValue == LOW )  {
@@ -95,46 +64,7 @@ int TestFlash::countFlashes() {
     return c;
 }
 
-unsigned long TestFlash::flashDuration() {
+uint16_t flashDuration() {
     unsigned long duration = DigitalWriteLogs[2].time - DigitalWriteLogs[1].time;
     return duration;
-}
-
-void TestFlash::setUp(void) {
-    mTestObj = new Flash();
-    initialize_mock_arduino();
-}
-
-void TestFlash::tearDown(void) {
-    delete mTestObj;
-}
-
-//-----------------------------------------------------------------------------
-
-CPPUNIT_TEST_SUITE_REGISTRATION( TestFlash );
-
-int main(int argc, char* argv[])
-{
-    // informs test-listener about testresults
-    CPPUNIT_NS::TestResult testresult;
-
-    // register listener for collecting the test-results
-    CPPUNIT_NS::TestResultCollector collectedresults;
-    testresult.addListener (&collectedresults);
-
-    // register listener for per-test progress output
-    CPPUNIT_NS::BriefTestProgressListener progress;
-    testresult.addListener (&progress);
-
-    // insert test-suite at test-runner by registry
-    CPPUNIT_NS::TestRunner testrunner;
-    testrunner.addTest (CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest ());
-    testrunner.run(testresult);
-
-    // output results in compiler-format
-    CPPUNIT_NS::CompilerOutputter compileroutputter(&collectedresults, std::cerr);
-    compileroutputter.write ();
-
-    // return 0 if tests were successful
-    return collectedresults.wasSuccessful() ? 0 : 1;
 }
