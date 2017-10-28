@@ -1,7 +1,6 @@
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch.hpp"
 
-//
 #define protected public
 #define private   public
 #include "../src/SerialComms/SerialPacket.h"
@@ -10,6 +9,29 @@
 
 #include <Arduino.h>
 using namespace std;
+
+TEST_CASE ( "Test getPayloadVal returns correct value from payload" ) {
+    Packet mTestObj;
+    byte idx = 0;
+    IntByte ib;
+    FloatByte fb;
+    ib.iVal = 3456;
+    fb.fVal = 36.786;
+    memcpy( mTestObj.payload, ib.bVal, 2);
+    memcpy( mTestObj.payload + 2, fb.bVal, 4);
+
+    IntByte getIb;
+    mTestObj.getPayloadVal(getIb.bVal, idx, 2);
+
+    CHECK( getIb.iVal == 3456 );
+    CHECK ( idx == 2 );
+
+    FloatByte getFb;
+    mTestObj.getPayloadVal(getFb.bVal, idx, 4);
+
+    CHECK( float(getFb.fVal) == float(36.786) );
+    CHECK ( idx == 6 );
+}
 
 TEST_CASE ( "Test reset sets Packet back to initilised state" ) {
     Packet mTestObj;
@@ -40,7 +62,7 @@ TEST_CASE ( "Test putVal adds correct value into the Packet payload" ) {
     FloatByte fbSet;
     fbSet.fVal = 46.7654;
 
-    mTestObj.putVal(fbSet.bVal, idx, sizeof(float));
+    mTestObj.putPayloadVal(fbSet.bVal, idx, sizeof(float));
 
     FloatByte fbGet;
     fbGet.bVal[0] = mTestObj.payload[0];
@@ -54,7 +76,7 @@ TEST_CASE ( "Test putVal adds correct value into the Packet payload" ) {
     IntByte ibSet;
     ibSet.iVal = 56754;
 
-    mTestObj.putVal(ibSet.bVal, idx, sizeof(int));
+    mTestObj.putPayloadVal(ibSet.bVal, idx, sizeof(int));
 
     IntByte ibGet;
     ibGet.bVal[0] = mTestObj.payload[4];

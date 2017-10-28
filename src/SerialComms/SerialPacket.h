@@ -57,8 +57,8 @@ class Packet {
 
         // Helpers for managing payload
         void getPayload(byte*);
-        void getPayloadVal(byte*, byte, byte); // needs a test
-        void putVal(byte*, byte&, byte);
+        void getPayloadVal(byte*, byte&, byte); // needs a test
+        void putPayloadVal(byte*, byte&, byte);
 
         // Creating.parsing byte arrays to send
         void setOutBuffer(byte*, byte&);

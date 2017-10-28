@@ -13,20 +13,14 @@ void Packet::reset(void) {
     clearArray(tmpBuffer, sizeof(tmpBuffer));
 }
 
-// static method to help with building payload byte array (could these by non-static??)
-void Packet::putVal(byte* bVal, byte& idx, byte size) {
-    for (byte i = 0; i < size; i++) {
-        payload[idx] = bVal[i];
-        idx++;
-    }
+void Packet::putPayloadVal(byte* bVal, byte& idx, byte size) {
+    memcpy(payload + idx, bVal, size);
+    idx += size;
 }
 
-// method to help with parsing values from payload byte array
-void Packet::getPayloadVal(byte* _bVal, byte _startIdx, byte _size) {
-    for (byte i = 0; i < _size; i++) {
-        _bVal[i] = payload[_startIdx];
-        _startIdx++;
-    }
+void Packet::getPayloadVal(byte* bVal, byte& idx, byte size) {
+    memcpy(bVal, payload + idx, size);
+    idx += size;
 }
 
 void Packet::removeCobsConversion(byte* bufferArray, byte& bufferSize, byte* tmpBuffer) {
