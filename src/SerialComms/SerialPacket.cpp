@@ -3,17 +3,43 @@
 #include "SerialPacket.h"
 FastCRC16 CRC16;
 
+
+void Packet::reset(void) {
+    pktType = 0x00;
+    dataType = 0x00;
+    dataLen = 0x00;
+    goodPacket = false;
+    clearArray(payload, sizeof(payload));
+    clearArray(tmpBuffer, sizeof(tmpBuffer));
+}
+
+// static method to help with building payload byte array (could these by non-static??)
+void Packet::putVal(byte* bVal, byte& idx, byte size) {
+    for (byte i = 0; i < size; i++) {
+        payload[idx] = bVal[i];
+        idx++;
+    }
+}
+
+// method to help with parsing values from payload byte array
+void Packet::getPayloadVal(byte* _bVal, byte _startIdx, byte _size) {
+    for (byte i = 0; i < _size; i++) {
+        _bVal[i] = payload[_startIdx];
+        _startIdx++;
+    }
+}
+
 void Packet::removeCobsConversion(byte* bufferArray, byte& bufferSize, byte* tmpBuffer) {
     COBS::decode(bufferArray, bufferSize, tmpBuffer);
     bufferSize -= 1;
 }
 
 bool Packet::crcMatch(byte &bufferSize) {
+    IntByte ib;
     ib.bVal[0] = tmpBuffer[bufferSize - 2];
     ib.bVal[1] = tmpBuffer[bufferSize - 1];
     bufferSize -= 2;
-    crc = bytesToCrc(tmpBuffer, bufferSize);
-    return (crc == ib.iVal);
+    return (bytesToCrc(tmpBuffer, bufferSize) == ib.iVal);
 }
 
 void Packet::parseHeader() {
@@ -79,6 +105,7 @@ unsigned int Packet::bytesToCrc(byte* packetArray, byte arraySize) {
 }
 
 void Packet::addCrcBytes(byte* packetArray, byte& arraySize) {
+    IntByte ib;
     ib.iVal = bytesToCrc(packetArray, arraySize);
     packetArray[arraySize] = ib.bVal[0];
     packetArray[arraySize + 1] = ib.bVal[1];
@@ -106,23 +133,4 @@ void Packet::setOutBuffer(byte* packetArray, byte& arraySize) {
     addCrcBytes(packetArray, arraySize);
     addCobsConversion(packetArray, arraySize);
     addDelimiterBytes(packetArray, arraySize);
-}
-
-
-
-
-// static method to help with building payload byte array (could these by non-static??)
-void Packet::putVal(byte* _payload, byte* _bVal, byte _startIdx, byte _size) {
-     for (byte i = 0; i < _size; i++) {
-         _payload[_startIdx] = _bVal[i];
-        _startIdx++;
-    }
-}
-
-// method to help with parsing values from payload byte array
-void Packet::getPayloadVal(byte* _bVal, byte _startIdx, byte _size) {
-    for (byte i = 0; i < _size; i++) {
-        _bVal[i] = payload[_startIdx];
-        _startIdx++;
-    }
 }
