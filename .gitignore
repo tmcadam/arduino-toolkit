@@ -7,3 +7,4 @@ old/
 .clang_complete
 .gcc-flags.json
 catch.hpp
+platformio.ini
