@@ -2,8 +2,8 @@
 set -e
 
 # Run Catch tests
-g++ -g -std=gnu++11 -o  tests/testPacket -I tests/mocks/ -I lib/  lib/FastCRC/FastCRCsw.cpp tests/TestSerialPacket.cpp src/SerialComms/SerialPacket.cpp
-chmod +x tests/testPacket
 echo "Packet Tests"
+g++ -g -std=gnu++11 -o  tests/testPacket -I tests/mocks/ -I src/SerialComms -I lib/PacketSerial/src/Encoding -I lib/FastCRC lib/FastCRC/FastCRCsw.cpp tests/TestSerialPacket.cpp src/SerialComms/SerialPacket.cpp
+chmod +x tests/testPacket
 ./tests/testPacket
 rm tests/testPacket

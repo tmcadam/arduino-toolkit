@@ -1,6 +1,6 @@
-#include <FastCRC/FastCRC.h>
-#include <PacketSerial/src/Encoding/COBS.h>
-#include "SerialPacket.h"
+#include <FastCRC.h>
+#include <COBS.h>
+#include <SerialPacket.h>
 FastCRC16 CRC16;
 
 
