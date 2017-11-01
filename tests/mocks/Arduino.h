@@ -67,6 +67,6 @@ void delay(unsigned long ms);
 
 void initialize_mock_arduino();
 
-//#include "fake_serial.h"
+#include "fake_serial.h"
 
 #endif

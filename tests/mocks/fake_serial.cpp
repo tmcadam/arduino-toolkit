@@ -15,7 +15,7 @@
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.  
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <cstring>
@@ -37,7 +37,7 @@ size_t FakeSerial::write( const unsigned char buf[], size_t size ) {
   ios_base::fmtflags oldFlags = cout.flags();
   streamsize oldPrec = cout.precision();
   char oldFill = cout.fill();
-  
+
   cout << "Serial::write: ";
   cout << internal << setfill('0');
 
@@ -45,7 +45,7 @@ size_t FakeSerial::write( const unsigned char buf[], size_t size ) {
     cout << setw(2) << hex << (unsigned int)buf[i] << " ";
   }
   cout << endl;
-  
+
   cout.flags(oldFlags);
   cout.precision(oldPrec);
   cout.fill(oldFill);
@@ -54,3 +54,4 @@ size_t FakeSerial::write( const unsigned char buf[], size_t size ) {
 }
 
 FakeSerial Serial;
+FakeSerial Serial1;
