@@ -1,5 +1,5 @@
 #include "SerialController.h"
-#include "../Auto485/Auto485.h"
+#include <Auto485.h>
 
 // Hand over serial to the Auto485 (handles mode switching)
 #if defined(__AVR_ATmega2560__)
