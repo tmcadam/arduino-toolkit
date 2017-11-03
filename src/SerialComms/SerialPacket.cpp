@@ -47,9 +47,7 @@ void Packet::parsePayload() {
 }
 
 void Packet::parse(byte* bufferArray, byte& bufferSize) {
-    goodPacket = false;
-    clearArray(tmpBuffer, sizeof(tmpBuffer));
-    clearArray(payload, sizeof(payload));
+    reset();
     removeCobsConversion(bufferArray, bufferSize, tmpBuffer);
     if ( crcMatch(bufferSize) && bufferSize >= 3 ) {
         parseHeader();
