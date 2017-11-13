@@ -11,6 +11,7 @@ private:
     int WindVanePin;
     int WindVaneOffset;
     int WindSpeedPin;
+    bool debugMode;
 
     // needed for both speed calculations
     unsigned long ContactBounceTime; // Timer to avoid contact bounce in interrupt routine
@@ -31,7 +32,7 @@ private:
     unsigned long RotationsBuffer[ROTATION_BUFFER_SIZE];
 
 public:
-    DavisAnemometer(unsigned long, int, int, int _WindVaneOffset=0);
+    DavisAnemometer(unsigned long, int, int, int, bool _debugMode = false);
     void update();
     void print(HardwareSerial&);
     int getDirection();

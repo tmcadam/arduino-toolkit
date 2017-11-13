@@ -1,5 +1,4 @@
 #include "davis.h"
-
 // Global flag and method to handle interrupts
 // ***INTEGRATION TESTED***
 bool rotationFlag = false;
@@ -8,11 +7,12 @@ void isrRotation() {
 }
 
 // ***TESTED***
-DavisAnemometer::DavisAnemometer( unsigned long _SamplePeriod, int _WindVanePin, int _WindSpeedPin, int _WindVaneOffset) {
+DavisAnemometer::DavisAnemometer( unsigned long _SamplePeriod, int _WindVanePin, int _WindSpeedPin, int _WindVaneOffset, bool _debugMode) {
     WindVanePin = _WindVanePin;
     WindVaneOffset = _WindVaneOffset;
     WindSpeedPin = _WindSpeedPin;
     SamplePeriod = _SamplePeriod;
+    debugMode = _debugMode;
     Rotations = 0;
     RotationsBufferSize = ROTATION_BUFFER_SIZE;
     pinMode(WindVanePin, INPUT);
@@ -22,6 +22,9 @@ DavisAnemometer::DavisAnemometer( unsigned long _SamplePeriod, int _WindVanePin,
 
 // ***TESTED***
 int DavisAnemometer::getDirection() {
+    if ( debugMode ) {
+        return (int)float(random(85, 95));
+    }
     int VaneValue = analogRead(WindVanePin);
     int Direction = map(VaneValue, 0, 1023, 0, 360);
     int CalDirection = Direction + WindVaneOffset;
@@ -74,11 +77,17 @@ void DavisAnemometer::updateSimpleWindSpeed () {
 // getter for SimpleWindSpeed
 // ***INTEGRATION TESTED***
 float DavisAnemometer::getSimpleWindSpeed() {
+    if ( debugMode ) {
+        return float(random(12000, 18000)) / float(1000);
+    }
     return SimpleWindSpeed;
 }
 
 // ***TESTED***
 float DavisAnemometer::getRollingWindSpeed() {
+    if ( debugMode ) {
+        return float(random(12000, 18000)) / float(1000);
+    }
     float T = SamplePeriod/1000;
     return (float)countRotations() * (1.955196/T);
 }

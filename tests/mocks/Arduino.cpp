@@ -17,8 +17,6 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-#include <sys/timeb.h>
 #include <Arduino.h>
 
 std::vector<DigitalWriteLog> DigitalWriteLogs;
@@ -68,6 +66,24 @@ int digitalPinToInterrupt(int pinNumber) {
 long map(long x, long in_min, long in_max, long out_min, long out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
+
+long random(long howbig)
+{
+  if (howbig == 0) {
+    return 0;
+  }
+  return random() % howbig;
+}
+
+long random(long howsmall, long howbig)
+{
+  if (howsmall >= howbig) {
+    return howsmall;
+  }
+  long diff = howbig - howsmall;
+  return random(diff) + howsmall;
+}
+
 
 //---------------------Non Arduino Helpers------------------------------------//
 

@@ -31,6 +31,7 @@
 #include <vector>
 #include <map>
 #include <chrono>
+#include <stdlib.h>
 
 typedef unsigned char byte;
 typedef unsigned char uint8_t;
@@ -67,6 +68,8 @@ int digitalPinToInterrupt(int);
 
 // WMath.cpp
 long map(long, long, long, long, long);
+long random(long);
+long random(long, long);
 
 #include "fake_serial.h"
 

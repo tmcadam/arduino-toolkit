@@ -13,18 +13,30 @@ using namespace std;
 
 //--------------------------Integration Tests---------------------------------//
 TEST_CASE( "integration test the library" ) {
-    DavisAnemometer davis(3000, 7, 4, 7);
-    setCurrMillis(3001); // Get past the weirdness during the first run
-    setAnalogPinVal(7, 512);
-    while(millis() <= 6100) {
-        if (millis() % 500 == 0) {
-            isrRotation(); //replicate an interrupt every 500ms
+    SECTION ( "inetgeration test in normal mode" ) {
+        DavisAnemometer davis(3000, 7, 4, 7);
+        setCurrMillis(3001); // Get past the weirdness during the first run
+        setAnalogPinVal(7, 512);
+        while(millis() <= 6100) {
+            if (millis() % 500 == 0) {
+                isrRotation(); //replicate an interrupt every 500ms
+            }
+            davis.update();
         }
-        davis.update();
+        CHECK ( abs(float(3.91039) - davis.getRollingWindSpeed()) < 0.0001 );
+        CHECK ( abs(float(3.91039) - davis.getSimpleWindSpeed()) < 0.0001 );
+        CHECK ( 187 == davis.getDirection() );
     }
-    CHECK ( abs(float(3.91039) - davis.getRollingWindSpeed()) < 0.0001 );
-    CHECK ( abs(float(3.91039) - davis.getSimpleWindSpeed()) < 0.0001 );
-    CHECK ( 187 == davis.getDirection() );
+    SECTION  ( "inetgeration test in debug mode" ) {
+        DavisAnemometer davis(3000, 7, 4, 7, true);
+        float rolling = davis.getRollingWindSpeed();
+        float simple = davis.getSimpleWindSpeed();
+        float direction = davis.getDirection();
+        CHECK ( (float(18.0) >= rolling && rolling >= float(12.0)) );
+        CHECK ( (float(18.0) >= simple && simple >= float(12.0)) );
+        CHECK ( (int(95) >= direction && direction >= int(85)) );
+    }
+
 }
 
 //--------------------------Unit Tests----------------------------------------//
