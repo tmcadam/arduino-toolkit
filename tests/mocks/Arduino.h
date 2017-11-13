@@ -29,6 +29,8 @@
 #include <stdio.h> // gives size_t
 #include <string.h> // gives memset
 #include <vector>
+#include <map>
+#include <chrono>
 
 typedef unsigned char byte;
 typedef unsigned char uint8_t;
@@ -48,25 +50,45 @@ inline uint32_t pgm_read_dword(const uint32_t * _address_short) {return *_addres
 #define OUTPUT 0x1
 #define INPUT_PULLUP 0x2
 
-struct DigitalWriteLog
-{
-  int pinNumber;
-  unsigned long time;
-  int pinValue;
-};
-extern std::vector<DigitalWriteLog> DigitalWriteLogs;
+#define CHANGE 1
+#define FALLING 2
+#define RISING 3
 
-void pinMode(int, int);
+typedef void (*GeneralCallbackFunction) ();
+
+void pinMode(uint8_t, uint8_t);
 void digitalWrite(int, int);
 int digitalRead(int);
 unsigned long millis();
 void delay(unsigned long ms);
+int analogRead(int);
+void attachInterrupt(int, GeneralCallbackFunction, int);
+int digitalPinToInterrupt(int);
 
 // WMath.cpp
-//long map(long, long, long, long, long);
-
-void initialize_mock_arduino();
+long map(long, long, long, long, long);
 
 #include "fake_serial.h"
+
+//---------------------Non Arduino Helpers------------------------------------//
+
+
+struct DigitalWriteLog
+{
+    int pinNumber;
+    unsigned long time;
+    int pinValue;
+};
+extern std::vector<DigitalWriteLog> DigitalWriteLogs;
+
+extern std::map<int, int> AnalogPinVals;
+void setAnalogPinVal(int, int);
+
+uint8_t getPinMode(uint8_t);
+extern std::map<uint8_t, uint8_t> PinModes;
+
+void initialize_mock_arduino();
+void setCurrMillis(unsigned long);
+unsigned long sysMillis();
 
 #endif

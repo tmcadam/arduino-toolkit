@@ -21,15 +21,27 @@
 #ifndef MOCK_SERIAL
 #define MOCK_SERIAL
 #include <iostream>
+//#include <string>
 
-class FakeSerial {
+class HardwareSerial {
 public:
   void begin(unsigned long);
   void end();
   size_t write(const unsigned char*, size_t);
+  void print(float) {};
+  void print(int) {};
+  void print(unsigned long) {};
+  void print(char&) {};
+  void print(std::string) {};
+
+  void println(float) {};
+  void println(int) {};
+  void println(unsigned long) {};
+  void println(char*) {};
+  void println(std::string) {};
 };
 
-extern FakeSerial Serial;
-extern FakeSerial Serial1;
+extern HardwareSerial Serial;
+extern HardwareSerial Serial1;
 
 #endif

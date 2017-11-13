@@ -22,12 +22,13 @@
 #include <Arduino.h>
 
 std::vector<DigitalWriteLog> DigitalWriteLogs;
+std::map<int, int> AnalogPinVals;
+std::map<uint8_t, uint8_t> PinModes;
 
-timeb t_start;
+unsigned long t_start_millis;
 unsigned long millis() {
-  timeb t_now;
-  ftime(&t_now);
-  return (t_now.time  - t_start.time) * 1000 + (t_now.millitm - t_start.millitm);
+    unsigned long t_now_millis = sysMillis();
+    return t_now_millis - t_start_millis;
 }
 
 void delay(unsigned long ms) {
@@ -40,7 +41,8 @@ void digitalWrite(int pinNumber, int pinState) {
     DigitalWriteLogs.push_back(log);
 }
 
-void pinMode(int pinNumber, int pinMode){
+void pinMode(uint8_t pinNumber, uint8_t pinMode) {
+    PinModes[pinNumber] = pinMode;
     DigitalWriteLog log = {pinNumber, millis(), LOW};
     DigitalWriteLogs.push_back(log);
 }
@@ -53,6 +55,39 @@ int digitalRead(int pinNumber) {
     }
 }
 
+int analogRead(int pinNumber) {
+    return AnalogPinVals[pinNumber];
+}
+
+void attachInterrupt(int pinNumber, GeneralCallbackFunction callBack, int state) {}
+
+int digitalPinToInterrupt(int pinNumber) {
+    return 0;
+}
+
+long map(long x, long in_min, long in_max, long out_min, long out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+//---------------------Non Arduino Helpers------------------------------------//
+
+uint8_t getPinMode(uint8_t pinNumber) {
+    return PinModes[pinNumber];
+}
+
+void setAnalogPinVal(int pinNumber, int value) {
+    AnalogPinVals[pinNumber] = value;
+}
+
 void initialize_mock_arduino() {
-    ftime(&t_start);
+    t_start_millis = sysMillis();
+}
+
+void setCurrMillis(unsigned long currMillis) {
+    t_start_millis = sysMillis() - currMillis;
+}
+
+unsigned long sysMillis() {
+    using namespace std::chrono;
+    return system_clock::now().time_since_epoch() / milliseconds(1);
 }

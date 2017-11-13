@@ -24,15 +24,15 @@
 
 #include "fake_serial.h"
 
-void FakeSerial::begin(unsigned long speed) {
+void HardwareSerial::begin(unsigned long speed) {
   return;
 }
 
-void FakeSerial::end() {
+void HardwareSerial::end() {
   return;
 }
 
-size_t FakeSerial::write( const unsigned char buf[], size_t size ) {
+size_t HardwareSerial::write( const unsigned char buf[], size_t size ) {
   using namespace std;
   ios_base::fmtflags oldFlags = cout.flags();
   streamsize oldPrec = cout.precision();
@@ -53,5 +53,5 @@ size_t FakeSerial::write( const unsigned char buf[], size_t size ) {
   return size;
 }
 
-FakeSerial Serial;
-FakeSerial Serial1;
+HardwareSerial Serial;
+HardwareSerial Serial1;
