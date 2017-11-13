@@ -18,13 +18,14 @@ TEST_CASE( "integration test the library" ) {
         setCurrMillis(3001); // Get past the weirdness during the first run
         setAnalogPinVal(7, 512);
         while(millis() <= 6100) {
-            if (millis() % 500 == 0) {
+            if (millis() % 20 == 0) {
                 isrRotation(); //replicate an interrupt every 500ms
+                delay(1);
             }
             davis.update();
         }
-        CHECK ( abs(float(3.91039) - davis.getRollingWindSpeed()) < 0.0001 );
-        CHECK ( abs(float(3.91039) - davis.getSimpleWindSpeed()) < 0.0001 );
+        CHECK ( abs(float(97.7598) - davis.getRollingWindSpeed()) < 0.0001 );
+        CHECK ( abs(float(97.7598) - davis.getSimpleWindSpeed()) < 0.0001 );
         CHECK ( 187 == davis.getDirection() );
     }
     SECTION  ( "inetgeration test in debug mode" ) {
@@ -52,15 +53,15 @@ TEST_CASE ( "test getRollingWindSpeed returns expected speed" ) {
 }
 
 TEST_CASE ( "test countRotations returns the correct number of rotatins from RotationsBuffer" ) {
-    DavisAnemometer davis(3000, 7, 4, 0);
-    davis.updateRotationsBuffer(1000);
-    davis.updateRotationsBuffer(2000);
-    davis.updateRotationsBuffer(3000);
-    setCurrMillis(3010);
-    CHECK ( 3 == davis.countRotations());
-    setCurrMillis(4010);
-    davis.updateRotationsBuffer(4000);
-    CHECK ( 3 == davis.countRotations());
+    DavisAnemometer davis(2000, 7, 4, 0);
+    setCurrMillis(1);
+    while(millis() <= 3100) {
+        if (millis() % 20 == 0) {
+            davis.updateRotationsBuffer(millis()); //replicate an interrupt every 500ms
+            delay(1);
+        }
+    }
+    CHECK (100 == davis.countRotations());
 }
 
 TEST_CASE( "test updateSimpleWindSpeed" ) {
@@ -84,12 +85,19 @@ TEST_CASE( "test updateSimpleWindSpeed" ) {
 
 TEST_CASE ( "test UpdateRoatationsBuffer stores rotation times in reverse order" ) {
     DavisAnemometer davis(1000, 7, 4, 0);
-    davis.updateRotationsBuffer(1000);
-    davis.updateRotationsBuffer(1020);
-    davis.updateRotationsBuffer(1040);
-    CHECK ( davis.RotationsBuffer[0] == 1040 );
-    CHECK ( davis.RotationsBuffer[1] == 1020 );
-    CHECK ( davis.RotationsBuffer[2] == 1000 );
+    setCurrMillis(1);
+    while(millis() <= 3100) {
+        if (millis() % 20 == 0) {
+            davis.updateRotationsBuffer(millis());
+            delay(1); // make sure we don't repaeat in this millisecond
+        }
+    }
+    CHECK ( davis.RotationsBuffer[0] == 3100 );
+    CHECK ( davis.RotationsBuffer[1] == 3080 );
+    CHECK ( davis.RotationsBuffer[2] == 3060 );
+    CHECK ( davis.RotationsBuffer[147] == 160 );
+    CHECK ( davis.RotationsBuffer[148] == 140 );
+    CHECK ( davis.RotationsBuffer[149] == 120 );
 }
 
 

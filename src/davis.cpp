@@ -57,7 +57,9 @@ void DavisAnemometer::update() {
 //another. Used for rolling averages method.
 // ***TESTED***
 void DavisAnemometer::updateRotationsBuffer(unsigned long _val) {
-    memcpy(RotationsBuffer + 1, RotationsBuffer, RotationsBufferSize - 1);
+    for (int i = RotationsBufferSize - 1; i > 0; i--) {
+         RotationsBuffer[i] = RotationsBuffer[i-1];
+    }
     RotationsBuffer[0] = _val;
 }
 
