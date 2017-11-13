@@ -71,7 +71,7 @@ void DavisAnemometer::updateSimpleWindSpeed () {
         LastSample = currMillis;
         // convert to knots
         float T = SamplePeriod/1000;
-        SimpleWindSpeed = (float)Rotations * (1.955196/T); // V = P(2.25/T) * 0.868976
+        SimpleWindSpeed = (float)Rotations * (ROTATIONS_CONVERSION/T);
         Rotations = 0;
     }
 }
@@ -91,7 +91,7 @@ float DavisAnemometer::getRollingWindSpeed() {
         return float(random(12000, 18000)) / float(1000);
     }
     float T = SamplePeriod/1000;
-    return (float)countRotations() * (1.955196/T);
+    return (float)countRotations() * (ROTATIONS_CONVERSION/T);
 }
 
 // Count the ticks that have occoured in the last n milliseconds.

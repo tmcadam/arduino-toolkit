@@ -3,6 +3,10 @@
 #include <Arduino.h>
 
 #define ROTATION_BUFFER_SIZE 150
+//#define ROTATIONS_CONVERSION 1.955196 // KNOTS
+//#define ROTATIONS_CONVERSION 2.25 // MPH
+#define ROTATIONS_CONVERSION 1.00584 // MS
+
 
 void isrRotation();
 

@@ -24,8 +24,8 @@ TEST_CASE( "integration test the library" ) {
             }
             davis.update();
         }
-        CHECK ( abs(float(97.7598) - davis.getRollingWindSpeed()) < 0.0001 );
-        CHECK ( abs(float(97.7598) - davis.getSimpleWindSpeed()) < 0.0001 );
+        CHECK ( abs(float(50.292) - davis.getRollingWindSpeed()) < 0.0001 );
+        CHECK ( abs(float(50.292) - davis.getSimpleWindSpeed()) < 0.0001 );
         CHECK ( 187 == davis.getDirection() );
     }
     SECTION  ( "inetgeration test in debug mode" ) {
@@ -49,7 +49,7 @@ TEST_CASE ( "test getRollingWindSpeed returns expected speed" ) {
     davis.updateRotationsBuffer(3000);
     davis.updateRotationsBuffer(4000);
     setCurrMillis(4010);
-    CHECK ( abs(float(1.955196) - davis.getRollingWindSpeed()) < 0.0001 );
+    CHECK ( abs(float(1.00584) - davis.getRollingWindSpeed()) < 0.0001 );
 }
 
 TEST_CASE ( "test countRotations returns the correct number of rotatins from RotationsBuffer" ) {
@@ -71,7 +71,7 @@ TEST_CASE( "test updateSimpleWindSpeed" ) {
         davis.Rotations = 30;
         setCurrMillis(3000);
         davis.updateSimpleWindSpeed();
-        CHECK ( abs(float(19.55196) - davis.SimpleWindSpeed) < 0.0001 );
+        CHECK ( abs(float(10.0584) - davis.SimpleWindSpeed) < 0.0001 );
         CHECK ( 0 == davis.Rotations );
     }
     SECTION ( "test updateSimpleWindSpeed doesn't update if less than sample period" ) {
