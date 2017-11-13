@@ -7,3 +7,4 @@ cd "${PROJECT_DIR}"
 bash tests/run-packet-tests.sh
 bash tests/run-timer-tests.sh
 bash tests/run-flash-tests.sh
+bash tests/run-davis-tests.sh
