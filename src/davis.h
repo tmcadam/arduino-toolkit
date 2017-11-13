@@ -4,6 +4,8 @@
 
 #define ROTATION_BUFFER_SIZE 150
 
+void isrRotation();
+
 class DavisAnemometer {
 private:
     int WindVanePin;
@@ -24,7 +26,7 @@ private:
     //some variables and functions for rolling wind speed calculation
     float RollingWindSpeed;
     void updateRotationsBuffer(unsigned long);
-    int countRotations(unsigned long);
+    int countRotations();
     int RotationsBufferSize; // Will work upto around 100 knots wind.
     unsigned long RotationsBuffer[ROTATION_BUFFER_SIZE];
 
