@@ -194,7 +194,7 @@ TEST_CASE ( "Test removeCobsConversion restores packet to pre-cobs state" ) {
 
     byte expectedArray[PACKET_SIZE] = {0x01, 0x02, 0x06, 0xb4, 0xaf, 0x98, 0x1a, 0xd1, 0xab, 0x2b, 0x8a};
     CHECK(byte(11) == bufferSize);
-    CHECK(0 == memcmp(tmpArray, expectedArray, PACKET_SIZE));
+    CHECK(0 == memcmp(tmpArray, expectedArray, 11));
 }
 
 TEST_CASE ( "Test getPayload copies payload to array passed to function" ) {
