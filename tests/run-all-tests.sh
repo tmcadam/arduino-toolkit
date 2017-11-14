@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-gcc --version
-
 PROJECT_DIR="$( cd "$(  dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 cd "${PROJECT_DIR}"
 
