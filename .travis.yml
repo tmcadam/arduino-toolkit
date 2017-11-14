@@ -1,5 +1,4 @@
 language: cpp
 sudo: required
 compiler: gcc
-install: sudo apt-get install libcppunit-doc libcppunit-dev
-script: bash tests/run-all-tests.sh
+script: bash build.sh
