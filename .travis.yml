@@ -1,4 +1,11 @@
 language: cpp
 sudo: required
 compiler: gcc
+before_install:
+  # C++11
+  - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
+  - sudo apt-get update -qq
+install:
+  # C++11
+  - sudo apt-get install -qq g++-5
 script: bash build.sh
