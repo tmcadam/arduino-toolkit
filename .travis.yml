@@ -1,5 +1,6 @@
-language: cpp
+dist: trusty
 sudo: required
+language: cpp
 compiler: gcc
 before_install:
   # C++11
@@ -8,4 +9,6 @@ before_install:
 install:
   # C++11
   - sudo apt-get install -qq g++-5
+
+env: COMPILER=g++-5
 script: bash build.sh
