@@ -9,6 +9,8 @@
 
 using namespace std;
 
+void padExpectedArray(byte*, byte);
+
 TEST_CASE ( "Test getPayloadVal returns correct value from payload" ) {
     Packet mTestObj;
     byte idx = 0;
@@ -45,6 +47,7 @@ TEST_CASE ( "Test reset sets Packet back to initilised state" ) {
     mTestObj.reset();
 
     byte expectedArray[PACKET_SIZE];
+    memset(expectedArray, 0, PACKET_SIZE);
     CHECK( mTestObj.pktType == 0 );
     CHECK( mTestObj.dataType == 0 );
     CHECK( mTestObj.dataLen == 0 );
@@ -193,8 +196,10 @@ TEST_CASE ( "Test removeCobsConversion restores packet to pre-cobs state" ) {
     mTestObj.removeCobsConversion(bufferArray, bufferSize, tmpArray);
 
     byte expectedArray[PACKET_SIZE] = {0x01, 0x02, 0x06, 0xb4, 0xaf, 0x98, 0x1a, 0xd1, 0xab, 0x2b, 0x8a};
+    padExpectedArray(expectedArray, 11);
+
     CHECK(byte(11) == bufferSize);
-    CHECK(0 == memcmp(tmpArray, expectedArray, 11));
+    CHECK(0 == memcmp(tmpArray, expectedArray, PACKET_SIZE));
 }
 
 TEST_CASE ( "Test getPayload copies payload to array passed to function" ) {
@@ -221,7 +226,8 @@ TEST_CASE ( "Test 'set' sets correct properties on Packet" ) {
         CHECK(byte(0) == mTestObj.pktType);
         CHECK(byte(1) == mTestObj.dataType);
         CHECK(byte(6) == mTestObj.dataLen);
-        byte expectedArray[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        byte expectedArray[PACKET_SIZE] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        padExpectedArray(expectedArray, 6);
         CHECK(0 == memcmp(mTestObj.payload, expectedArray, PACKET_SIZE));
     }
 
@@ -289,6 +295,7 @@ TEST_CASE ( "Test addPayloadBytes adds the payload to the packet byte array" ) {
     mTestObj.addPayloadBytes(testArray, arraySize); //already tested
 
     byte expectedArray[PACKET_SIZE] = {0x01, 0x02, 0x06, 0xb4, 0xaf, 0x98, 0x1a, 0xd1, 0xab};
+    padExpectedArray(expectedArray, 9);
     CHECK(0 == memcmp(testArray, expectedArray, PACKET_SIZE));
     CHECK(byte(9) == arraySize);
 }
@@ -360,4 +367,12 @@ TEST_CASE ( "Test the setOutBufferProduces expected byte array" ) {
         CHECK(0 == memcmp(expectedPacket, packetArray, 8));
     }
 
+}
+
+//--------------------------Helpers-------------------------------------------//
+void padExpectedArray( byte* _expectedArray, byte _expectedArraySize ) {
+    byte tmpExpectedArray[_expectedArraySize];
+    memcpy(tmpExpectedArray, _expectedArray, _expectedArraySize);
+    memset(_expectedArray, 0, PACKET_SIZE);
+    memcpy(_expectedArray, tmpExpectedArray, _expectedArraySize);
 }
