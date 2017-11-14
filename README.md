@@ -1,6 +1,6 @@
 # Arduino Toolkit [![Build Status](https://travis-ci.org/tmcadam/arduino-toolkit.svg?branch=master)](https://travis-ci.org/tmcadam/arduino-toolkit)
 
-A bunch of handy tools (and Arduino mocks)to use in Arduino projects.
+A bunch of handy tools (and Arduino mocks) to use in Arduino projects.
 
 ## Install dependencies
 
@@ -25,7 +25,7 @@ In PlatformIO you need to do some extra configuration to the platform.ini file.
 
 ## Tests
 
-I used this project to get started on some non-hardware based Arduino test driven developemnt (TDD). I have done some work on mocking some of the Arduino objects and methods (based on https://github.com/IronSavior/dsm2_tx), which may be useful to others (see ```tests/mocks```). These basically allow you to develop your code without any Arduino hardware present, using a regular C++ compliler and testing framework (Catch2 - https://github.com/catchorg/Catch2).
+I used this project to get started Arduino test driven developemnt (TDD). I have done some work on mocking a subset of the Arduino objects and methods (based on https://github.com/IronSavior/dsm2_tx), which may be useful to others (see ```tests/mocks```). These basically allow you to develop your code without an Arduino hardware present, using a regular C++ compliler and testing framework (Catch2 - https://github.com/catchorg/Catch2).
 
 Once you get beyond trivial sketches(and over the hump of creating the major mocks) I think this is a far quicker and robust way to produce Arduino code. It separates hardware weirdness (bad components, wobbly wires on breadboards etc.) from code weirdness, which makes it a lot easier to remove all the weirdness from your system.
 
