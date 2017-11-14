@@ -9,8 +9,6 @@
 
 using namespace std;
 
-void padExpectedArray(byte*, byte);
-
 TEST_CASE ( "Test getPayloadVal returns correct value from payload" ) {
     Packet mTestObj;
     byte idx = 0;
@@ -156,7 +154,7 @@ TEST_CASE ( "Test parsePayload sets payload property" ) {
     mTestObj.parsePayload();
 
     byte expectedArray[PACKET_SIZE] = {0xb4, 0xaf, 0x98, 0x1a, 0xd1, 0xab};
-    CHECK(0 == memcmp(mTestObj.payload, expectedArray, PACKET_SIZE));
+    CHECK(0 == memcmp(mTestObj.payload, expectedArray, 6));
 }
 
 TEST_CASE ( "Test crcMatch returns correctly for valid and invalid packets" ) {
@@ -196,10 +194,9 @@ TEST_CASE ( "Test removeCobsConversion restores packet to pre-cobs state" ) {
     mTestObj.removeCobsConversion(bufferArray, bufferSize, tmpArray);
 
     byte expectedArray[PACKET_SIZE] = {0x01, 0x02, 0x06, 0xb4, 0xaf, 0x98, 0x1a, 0xd1, 0xab, 0x2b, 0x8a};
-    padExpectedArray(expectedArray, 11);
 
     CHECK(byte(11) == bufferSize);
-    CHECK(0 == memcmp(tmpArray, expectedArray, PACKET_SIZE));
+    CHECK(0 == memcmp(tmpArray, expectedArray, 11));
 }
 
 TEST_CASE ( "Test getPayload copies payload to array passed to function" ) {
@@ -211,7 +208,7 @@ TEST_CASE ( "Test getPayload copies payload to array passed to function" ) {
 
     mTestObj.getPayload(getPayload);
 
-    CHECK(0 == memcmp(getPayload, getPayload, PACKET_SIZE));
+    CHECK(0 == memcmp(getPayload, setPayload, 6));
 }
 
 TEST_CASE ( "Test 'set' sets correct properties on Packet" ) {
@@ -227,8 +224,7 @@ TEST_CASE ( "Test 'set' sets correct properties on Packet" ) {
         CHECK(byte(1) == mTestObj.dataType);
         CHECK(byte(6) == mTestObj.dataLen);
         byte expectedArray[PACKET_SIZE] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-        padExpectedArray(expectedArray, 6);
-        CHECK(0 == memcmp(mTestObj.payload, expectedArray, PACKET_SIZE));
+        CHECK(0 == memcmp(mTestObj.payload, expectedArray, 6));
     }
 
     SECTION ( "Test 'set' with payload provided" ) {
@@ -239,7 +235,7 @@ TEST_CASE ( "Test 'set' sets correct properties on Packet" ) {
         CHECK(byte(0) == mTestObj.pktType);
         CHECK(byte(1) == mTestObj.dataType);
         CHECK(byte(6) == mTestObj.dataLen);
-        CHECK(0 == memcmp(payload, mTestObj.payload, PACKET_SIZE));
+        CHECK(0 == memcmp(payload, mTestObj.payload, 9));
     }
 
 }
@@ -253,7 +249,7 @@ TEST_CASE ( "Test addDelimterBytes sets correct bytes at the start and end of th
 
     byte expectedArray[PACKET_SIZE] = {DELIM, 0x0c, 0x01, 0x02, 0x06, 0xb4, 0xaf, 0x98, 0x1a, 0xd1, 0xab, 0x2b, 0x8a, DELIM};
     CHECK(byte(14) == arraySize);
-    CHECK(0 == memcmp(testArray, expectedArray, PACKET_SIZE));
+    CHECK(0 == memcmp(testArray, expectedArray, 14));
 }
 
 TEST_CASE ( "Test addCobsConversion byte stuffs the packet byte array" ) {
@@ -265,7 +261,7 @@ TEST_CASE ( "Test addCobsConversion byte stuffs the packet byte array" ) {
 
     byte expectedArray[PACKET_SIZE] = {0x0c, 0x01, 0x02, 0x06, 0xb4, 0xaf, 0x98, 0x1a, 0xd1, 0xab, 0x2b, 0x8a};
     CHECK(byte(12) == arraySize);
-    CHECK(0 == memcmp(testArray, expectedArray, PACKET_SIZE));
+    CHECK(0 == memcmp(testArray, expectedArray, 12));
 }
 
 TEST_CASE ( "Test addCrcBytes add the two crc bytes to the end of the packet byte array" ) {
@@ -281,7 +277,7 @@ TEST_CASE ( "Test addCrcBytes add the two crc bytes to the end of the packet byt
 
     CHECK(byte(11) == arraySize);
     byte expectedArray[PACKET_SIZE] = {0x01, 0x02, 0x06, 0xb4, 0xaf, 0x98, 0x1a, 0xd1, 0xab, 0x2b, 0x8a};
-    CHECK(0 == memcmp(testArray, expectedArray, PACKET_SIZE));
+    CHECK(0 == memcmp(testArray, expectedArray, 11));
 }
 
 TEST_CASE ( "Test addPayloadBytes adds the payload to the packet byte array" ) {
@@ -295,8 +291,7 @@ TEST_CASE ( "Test addPayloadBytes adds the payload to the packet byte array" ) {
     mTestObj.addPayloadBytes(testArray, arraySize); //already tested
 
     byte expectedArray[PACKET_SIZE] = {0x01, 0x02, 0x06, 0xb4, 0xaf, 0x98, 0x1a, 0xd1, 0xab};
-    padExpectedArray(expectedArray, 9);
-    CHECK(0 == memcmp(testArray, expectedArray, PACKET_SIZE));
+    CHECK(0 == memcmp(testArray, expectedArray, 9));
     CHECK(byte(9) == arraySize);
 }
 
@@ -311,7 +306,7 @@ TEST_CASE ( "Test addHeaderBytes adds the header to the packet byte array" ) {
     mTestObj.addHeaderBytes(testArray, arraySize);
 
     byte expectedArray[PACKET_SIZE] = {0x01, 0x02, 0x06};
-    CHECK(0 == memcmp(testArray, expectedArray, PACKET_SIZE));
+    CHECK(0 == memcmp(testArray, expectedArray, 3));
 }
 
 TEST_CASE ( "Test clearBuffer sets all bytes in a byte array to 0x00" ) {
@@ -321,7 +316,7 @@ TEST_CASE ( "Test clearBuffer sets all bytes in a byte array to 0x00" ) {
     mTestObj.clearArray(testArray, 12);
 
     byte expectedArray[PACKET_SIZE] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
-    CHECK(0 == memcmp(testArray, expectedArray, PACKET_SIZE));
+    CHECK(0 == memcmp(testArray, expectedArray, 12));
 }
 
 TEST_CASE ( "Test bytesToCrc returns the expected integer for the byte array provided" ) {
@@ -354,7 +349,7 @@ TEST_CASE ( "Test the setOutBufferProduces expected byte array" ) {
 
         byte expectedPacket[PACKET_SIZE] = {0x00, 0x01, 0x0B, 0x01, 0x06, 0xB4, 0xAF, 0x98, 0x1A, 0xD1, 0xAB, 0x7D, 0xA9, 0x00};
         CHECK(byte(14) == arraySize);
-        CHECK(0 == memcmp(expectedPacket, packetArray, PACKET_SIZE));
+        CHECK(0 == memcmp(expectedPacket, packetArray, 14));
     }
 
     SECTION ( "Test without payload" ) {
@@ -367,12 +362,4 @@ TEST_CASE ( "Test the setOutBufferProduces expected byte array" ) {
         CHECK(0 == memcmp(expectedPacket, packetArray, 8));
     }
 
-}
-
-//--------------------------Helpers-------------------------------------------//
-void padExpectedArray( byte* _expectedArray, byte _expectedArraySize ) {
-    byte tmpExpectedArray[_expectedArraySize];
-    memcpy(tmpExpectedArray, _expectedArray, _expectedArraySize);
-    memset(_expectedArray, 0, PACKET_SIZE);
-    memcpy(_expectedArray, tmpExpectedArray, _expectedArraySize);
 }
