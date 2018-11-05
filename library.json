@@ -20,6 +20,6 @@
   "examples": "examples/*.cpp",
   "export": {
   "exclude":
-        [ "extras/*", "tools/*" ]
+        [ "tests/*" ]
    }
 }
