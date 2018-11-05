@@ -3,7 +3,7 @@
 
 #define protected public
 #define private   public
-#include "../src/timer.h"
+#include "../timer.h"
 #undef protected
 #undef private
 

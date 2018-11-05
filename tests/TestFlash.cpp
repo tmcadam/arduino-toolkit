@@ -3,7 +3,7 @@
 
 #define protected public
 #define private   public
-#include "../src/flash.h"
+#include "../flash.h"
 #undef protected
 #undef private
 

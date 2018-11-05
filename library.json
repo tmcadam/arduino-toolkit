@@ -1,0 +1,25 @@
+{
+  "name": "Timer",
+  "version": "0.1",
+  "description": "A set of basic Arduino helpers",
+  "keywords": "Arduino, tools, timer, blink, no-delay, no_delay, flash, strings",
+  "authors":
+  {
+    "name":  "Tom McAdam",
+    "url":   "https://github.com/tmcadam",
+    "maintainer": true
+  },
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/tmcadam/arduino-toolkit.git"
+  },
+  "homepage": "https://github.com/tmcadam/arduino-toolkit",
+  "frameworks": [ "arduino" ],
+  "platforms": "*",
+  "examples": "examples/*.cpp",
+  "export": {
+  "exclude":
+        [ "extras/*", "tools/*" ]
+   }
+}
