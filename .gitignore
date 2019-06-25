@@ -1,6 +1,6 @@
 lib/
 old/
-
+.pio
 *.gch
 .pioenvs
 .piolibdeps
