@@ -1,8 +1,8 @@
 #include "flash.h"
 
 void Flash::setPin(int _pinNumber){
-  this->pinNumber = _pinNumber;
-  pinMode(this->pinNumber, OUTPUT);
+  pinNumber = _pinNumber;
+  pinMode(pinNumber, OUTPUT);
 }
 
 void Flash::dFlash(unsigned long flashPeriod) {
@@ -21,31 +21,31 @@ void Flash::dFlashes(unsigned long flashPeriod, int flashCount){
 }
 
 void Flash::ndFlash(unsigned long _flashPeriod, int _numFlashes){
-  if (this->flashInProgress == 0) {
-      this->flashInProgress = 1;
-      this->flashPeriod = _flashPeriod;
-      this->numFlashes = _numFlashes;
-      this->flashCounter = 0;
+  if (flashInProgress == 0) {
+      flashInProgress = 1;
+      flashPeriod = _flashPeriod;
+      numFlashes = _numFlashes;
+      flashCounter = 0;
   }
-  this->ndWatcher();
+  ndWatcher();
 }
 
 void Flash::ndWatcher() {
-  if (this->flashInProgress >= 1) {
+  if (flashInProgress >= 1) {
     unsigned long currentMillis = millis();
-    if (this->flashInProgress == 1) {
-      digitalWrite(this->pinNumber, HIGH);
-      this->flashStartTime = currentMillis;
-      this->flashInProgress = 2;
-    } else if (currentMillis - this->flashStartTime >= this->flashPeriod and this->flashInProgress == 2) {
+    if (flashInProgress == 1) {
+      digitalWrite(pinNumber, HIGH);
+      flashStartTime = currentMillis;
+      flashInProgress = 2;
+    } else if (currentMillis - flashStartTime >= flashPeriod and flashInProgress == 2) {
       digitalWrite(pinNumber, LOW);
       flashInProgress = 3;
-    } else if (currentMillis - this->flashStartTime >= this->flashPeriod * 2 and this->flashInProgress == 3) {
-      this->flashCounter++;
-      if (this->flashCounter < this->numFlashes){
-        this->flashInProgress = 1;
+    } else if (currentMillis - flashStartTime >= flashPeriod * 2 and flashInProgress == 3) {
+      flashCounter++;
+      if (flashCounter < numFlashes){
+        flashInProgress = 1;
       }
-      this->flashInProgress = 0;
+      flashInProgress = 0;
     }
   }
 }
